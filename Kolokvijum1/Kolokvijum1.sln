@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kolokvijum1", "Kolokvijum1.csproj", "{3AEE0D05-6228-4A6B-90FB-A9C6E9D80EC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessingSystem.Tests", "..\ProcessingSystem.Tests\ProcessingSystem.Tests.csproj", "{53E0411A-C68D-4EB8-93B3-7A33AC1C3BEB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3AEE0D05-6228-4A6B-90FB-A9C6E9D80EC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AEE0D05-6228-4A6B-90FB-A9C6E9D80EC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AEE0D05-6228-4A6B-90FB-A9C6E9D80EC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AEE0D05-6228-4A6B-90FB-A9C6E9D80EC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53E0411A-C68D-4EB8-93B3-7A33AC1C3BEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53E0411A-C68D-4EB8-93B3-7A33AC1C3BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53E0411A-C68D-4EB8-93B3-7A33AC1C3BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53E0411A-C68D-4EB8-93B3-7A33AC1C3BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4E1D26DE-23EE-474C-987D-3D91523BD458}
+	EndGlobalSection
+EndGlobal
