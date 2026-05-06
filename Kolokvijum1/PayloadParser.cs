@@ -20,8 +20,8 @@ public static class PayloadParser
         if (parts.Length != 2)
             throw new ArgumentException("Invalid Prime payload format.");
 
-        var numbersPart = parts[0].Split(':');
-        var threadsPart = parts[1].Split(':');
+        var numbersPart = parts[0].Split(':'); // niz [numbers] [10000]
+        var threadsPart = parts[1].Split(':'); // niz [threads] [3]
 
         if (numbersPart.Length != 2 || numbersPart[0].Trim() != "numbers" ||
             threadsPart.Length != 2 || threadsPart[0].Trim() != "threads")

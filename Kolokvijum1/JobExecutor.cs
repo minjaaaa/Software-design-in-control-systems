@@ -15,7 +15,7 @@ namespace Kolokvijum1
             {
                 var parameters = PayloadParser.ParsePrimePayload(job.Payload);
                 // Prebacujemo CPU-intenzivan posao na ThreadPool kako ne bismo blokirali glavnu nit
-                return await Task.Run(() => CalculatePrimesParallel(parameters.Limit, parameters.ThreadCount));
+                return await Task.Run(() => CalculatePrimesParallel(parameters.Limit, parameters.ThreadCount)); //salje se ThreadPool niti
             }
             else if (job.Type == JobType.IO)
             {
@@ -40,7 +40,7 @@ namespace Kolokvijum1
 
             // Paralelno izvrsavanje
             Parallel.For(2, limit + 1, options,
-                () => 0, // Initialize local sum for the current thread
+                () => 0, // Inicijalizacija sume
                 (i, loopState, localSum) =>
                 {
                     if (IsPrime(i))
@@ -50,6 +50,7 @@ namespace Kolokvijum1
                     return localSum;
                 },
                 localSum => Interlocked.Add(ref totalPrimes, localSum) // Thread-safe dodavanje lokalne sume u globalnu
+                //garantuje da ne moze vise niti istovremeno da menja totalPrimes
             );
 
             return totalPrimes;

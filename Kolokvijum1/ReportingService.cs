@@ -21,19 +21,18 @@ namespace Kolokvijum1
 
     public class ReportingService
     {
-        // Koristimo Thread-Safe kolekciju jer više niti istovremeno završava poslove
+        
         private readonly ConcurrentBag<JobRecord> _jobHistory = new ConcurrentBag<JobRecord>();
         private readonly string _logFilePath = "events_log.txt";
         private readonly string _xmlDirectory = "Reports";
         private readonly Timer _reportTimer;
-        // "Saobraćajac" koji pušta samo jednu nit da piše u fajl
-        private readonly SemaphoreSlim _fileSemaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _fileSemaphore = new SemaphoreSlim(1, 1); //samo 1 nit moze da pise u jednom trenutku u izlazni fajl
 
         public ReportingService(ProcessingSystemMenager systemManager)
         {
             Directory.CreateDirectory(_xmlDirectory);
 
-            // 1. Pretplata na događaje koristeći LAMBDA izraze
+            // Pretplata na događaje 
             systemManager.JobCompletedEvent += async (job, result, duration) =>
             {
                 _jobHistory.Add(new JobRecord { Type = job.Type, IsSuccess = true, DurationMs = duration });
@@ -59,7 +58,7 @@ namespace Kolokvijum1
             string logLine = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{status}] {jobId}, {resultText}\n";
 
             // Čekamo da fajl bude slobodan
-            await _fileSemaphore.WaitAsync();
+            await _fileSemaphore.WaitAsync(); // nije .wait da ne bi blokirala nit dok ceka
             try
             {
                 // Sada kada smo sigurni da smo jedini, upisujemo u fajl
@@ -90,7 +89,7 @@ namespace Kolokvijum1
                     FailedCount = g.Count(j => !j.IsSuccess),
                     AverageDuration = g.Where(j => j.IsSuccess).Select(j => j.DurationMs).DefaultIfEmpty(0).Average()
                 })
-                .OrderBy(s => s.JobType) // Sortirano po tipu, kao u zahtevu
+                .OrderBy(s => s.JobType) // Sortirano po tipu, abecedno
                 .ToList();
 
             // 4. Kreiranje XML fajla
@@ -123,7 +122,7 @@ namespace Kolokvijum1
 
             if (allReports.Count > 10)
             {
-                int filesToDelete = allReports.Count - 10;
+                int filesToDelete = allReports.Count - 10; // 11 - 10 = 1, znači da treba obrisati 1 najstariji fajl
                 for (int i = 0; i < filesToDelete; i++)
                 {
                     allReports[i].Delete();

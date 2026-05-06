@@ -27,8 +27,8 @@ namespace Kolokvijum1
         {
             _workerCount = workerCount;
             _jobQueue = new JobQueue(maxQueueSize);
-            _activeJobs = new ConcurrentDictionary<Guid, TaskCompletionSource<int>>();
-            _cancellationTokenSource = new CancellationTokenSource();
+            _activeJobs = new ConcurrentDictionary<Guid, TaskCompletionSource<int>>(); // u ovom recniku ne moze vise niti pristupati istom id-ju
+            _cancellationTokenSource = new CancellationTokenSource(); // token za gasenje ima onaj koji pozove konstruktor - menager
 
             StartWorkerThreads();
         }
@@ -47,7 +47,7 @@ namespace Kolokvijum1
             }
         }
 
-        // Prima posao i vraća JobHandle odmah
+        // Prima posao, stavlja ga u red za obradu i vraća JobHandle odmah
         public JobHandle Submit(Job job)
         {
             // TaskCreationOptions.RunContinuationsAsynchronously sprečava mrtve petlje (deadlocks)
@@ -62,13 +62,16 @@ namespace Kolokvijum1
                 return handle;
             }
 
-            // Ako je uspešno dodat, pamtimo njegov TaskCompletionSource
+            // Ako je uspešno dodat, pamtimo njegov TaskCompletionSource - tsc
+            // kada worker nit pozove tcs.SetResult() bude se svi koji cekaju na handle.Result
             _activeJobs.TryAdd(job.Id, tcs);
 
-            return handle;
+            return handle; // vraca se odma
         }
 
-        
+        // vrti se beskonacno i pokušava da uzme posao sa reda, obradi ga i vrati rezultat klijentu. 
+        // Ako nema posla, spava 100ms i ponavlja.
+        // sve dok se ne zatrazi gasenje sistema (kroz _cancellationTokenSource)
         private void WorkerLoop()
         {
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -109,7 +112,7 @@ namespace Kolokvijum1
                     var timeoutTask = Task.Delay(timeoutLimit);
 
                     // Task.WhenAny se završava čim se jedan od ova dva taska završi prvi
-                    var firstCompletedTask = await Task.WhenAny(executionTask, timeoutTask);
+                    var firstCompletedTask = await Task.WhenAny(executionTask, timeoutTask); // vraca koji je pobedio, ali ne izvlaci rezultat
 
                     if (firstCompletedTask == timeoutTask)
                     {
@@ -117,17 +120,17 @@ namespace Kolokvijum1
                         throw new TimeoutException($"Posao traje duže od 2 sekunde.");
                     }
 
-                    // Ako smo ovde, obrada je uspela na vreme!
+                    // Ako smo ovde, obrada je uspela na vreme
                     int result = await executionTask;
                     stopwatch.Stop(); // Zaustavi štopericu kada se posao završi
                     // Okidamo događaj za uspešan posao
                     
-                    JobCompletedEvent?.Invoke(job, result, stopwatch.ElapsedMilliseconds);
+                    JobCompletedEvent?.Invoke(job, result, stopwatch.ElapsedMilliseconds); 
 
                     // Upisujemo rezultat nazad klijentu
                     if (_activeJobs.TryRemove(job.Id, out var tcs))
                     {
-                        tcs.SetResult(result);
+                        tcs.SetResult(result); // OVO BUDI POZIVAOCA
                     }
 
                     return; 

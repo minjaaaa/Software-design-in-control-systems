@@ -86,5 +86,16 @@ public class JobQueue
             }
         }
     }
+    public Job? GetJob(Guid id)
+    {
+        // Obavezno koristimo lock da bi pretraga bila bezbedna (thread-safe)
+        lock (_lockObj){
+            
+                // Pristupamo elementima preko UnorderedItems, 
+                // trazimo onaj čiji se ID poklapa i vraćamo njegov Element
+                var foundItem = _queue.UnorderedItems.FirstOrDefault(item => item.Element.Id == id);
+                return foundItem.Element;
+        }
+    }
 }	
 
